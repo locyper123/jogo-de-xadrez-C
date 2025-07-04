@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define TAM 8
+
+char tabuleiro[TAM][TAM] = {
+    {'r','n','b','q','k','b','n','r'},
+    {'p','p','p','p','p','p','p','p'},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {'P','P','P','P','P','P','P','P'},
+    {'R','N','B','Q','K','B','N','R'}
+};
+
+void imprimir_tabuleiro() {
+    printf("  a b c d e f g h\n");
+    for (int i = 0; i < TAM; i++) {
+        printf("%d ", 8 - i);
+        for (int j = 0; j < TAM; j++) {
+            printf("%c ", tabuleiro[i][j]);
+        }
+        printf("%d\n", 8 - i);
+    }
+    printf("  a b c d e f g h\n");
+}
+
+int posicao_valida(int l, int c) {
+    return l >= 0 && l < TAM && c >= 0 && c < TAM;
+}
+
+int coluna_para_indice(char c) {
+    return tolower(c) - 'a';
+}
+
+int mover_peca(char origem[], char destino[], int turno_branco) {
+    int lo = 8 - (origem[1] - '0');
+    int co = coluna_para_indice(origem[0]);
+    int ld = 8 - (destino[1] - '0');
+    int cd = coluna_para_indice(destino[0]);
+
+    if (!posicao_valida(lo, co) || !posicao_valida(ld, cd)) {
+        printf("Movimento inválido! Fora do tabuleiro.\n");
+        return 0;
+    }
+
+    char peca = tabuleiro[lo][co];
+
+    if (peca == ' ') {
+        printf("Não há peça na origem!\n");
+        return 0;
+    }
+
+    if ((turno_branco && !isupper(peca)) || (!turno_branco && !islower(peca))) {
+        printf("Você não pode mover a peça do adversário!\n");
+        return 0;
+    }
+
+    tabuleiro[ld][cd] = peca;
+    tabuleiro[lo][co] = ' ';
+    return 1;
+}
+
+int main() {
+    char origem[3], destino[3];
+    int turno_branco = 1;
+
+    printf("=== XADREZ SIMPLES EM C ===\n");
+    printf("Digite os movimentos como: e2 e4\n");
+    printf("Digite 'sair' para encerrar o jogo\n\n");
+
+    while (1) {
+        imprimir_tabuleiro();
+        printf("Vez das %s: ", turno_branco ? "brancas" : "pretas");
+        scanf("%s", origem);
+        if (strcmp(origem, "sair") == 0) break;
+        scanf("%s", destino);
+        if (strcmp(destino, "sair") == 0) break;
+
+        if (mover_peca(origem, destino, turno_branco)) {
+            turno_branco = !turno_branco;
+        }
+    }
+
+    printf("Jogo encerrado.\n");
+    return 0;
+}
